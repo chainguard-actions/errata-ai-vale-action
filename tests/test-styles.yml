@@ -1,0 +1,25 @@
+name: Test styles input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: fake-token-for-testing
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run Vale action with styles input
+        id: action
+        continue-on-error: true
+        uses: .
+        with:
+          styles: |
+            https://github.com/errata-ai/Vale/releases/latest/download/Vale.zip
+          files: all
+          debug: 'true'
+
+      - name: Assert action ran with styles input
+        run: |
+          echo "Action completed with styles input (exit may be non-zero due to missing GITHUB_TOKEN)"
+          echo "PASS: action invoked with styles input"

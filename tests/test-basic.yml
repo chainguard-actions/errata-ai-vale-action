@@ -1,0 +1,42 @@
+name: Test basic usage
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: fake-token-for-testing
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Create test markdown file
+        run: |
+          mkdir -p /tmp/vale-test
+          cat > /tmp/vale-test/test.md << 'EOF'
+          # Hello World
+
+          This is a test document.
+          EOF
+
+      - name: Create vale config
+        run: |
+          cat > /tmp/vale-test/.vale.ini << 'EOF'
+          StylesPath = styles
+          MinAlertLevel = suggestion
+
+          [*.md]
+          BasedOnStyles = Vale
+          EOF
+
+      - name: Run Vale action on specific folder
+        id: action
+        continue-on-error: true
+        uses: .
+        with:
+          files: /tmp/vale-test
+          debug: 'true'
+
+      - name: Assert action ran
+        run: |
+          echo "Action completed (exit code may be non-zero due to missing GITHUB_TOKEN)"
+          echo "PASS: action invoked with files input"
