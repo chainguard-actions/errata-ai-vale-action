@@ -8,7 +8,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
-| v1.5.0 | [`v1.5.0`](https://github.com/chainguard-actions/vale-action/tree/v1.5.0) | — |
+| v1.5.0 | [`v1.5.0`](https://github.com/chainguard-actions/errata-ai--vale-action/tree/v1.5.0) | — |
 
 ## Privacy
 
