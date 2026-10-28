@@ -6,9 +6,9 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 ## Versions
 
-| Version | Tag | Upstream commit |
-|---------|-----|-----------------|
-| v1.5.0 | [`v1.5.0`](https://github.com/chainguard-actions/errata-ai-vale-action/tree/v1.5.0) | — |
+| Version | Tag | Upstream commit | Hardening report |
+|---------|-----|-----------------|------------------|
+| v1.5.0 | [`v1.5.0`](https://github.com/chainguard-actions/errata-ai-vale-action/tree/v1.5.0) | — | [`HARDENING.md`](https://github.com/chainguard-actions/errata-ai-vale-action/blob/v1.5.0/HARDENING.md) |
 
 ## Privacy
 
