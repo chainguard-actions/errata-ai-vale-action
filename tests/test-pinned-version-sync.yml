@@ -1,0 +1,40 @@
+name: Test pinned Vale version with sync and debug
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          version: "3.7.1"
+          files: tests/fixtures/vale/clean
+          config: tests/fixtures/vale/.vale.ini
+          sync: "true"
+          debug: "true"
+          reporter: local
+          filter_mode: nofilter
+      - name: Assert pinned version installed
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "success" ]; then
+            echo "FAIL: expected success"
+            exit 1
+          fi
+          CACHE="${RUNNER_TOOL_CACHE:-/opt/hostedtoolcache}"
+          VALE="$(find "$CACHE/vale/3.7.1" -type f -name vale 2>/dev/null | head -n1)"
+          echo "vale binary: $VALE"
+          if [ -z "$VALE" ]; then
+            echo "FAIL: vale 3.7.1 not found in tool cache"
+            exit 1
+          fi
+          OUT="$("$VALE" -v)"
+          echo "version: $OUT"
+          case "$OUT" in
+            *3.7.1*) echo "PASS" ;;
+            *) echo "FAIL: unexpected version"; exit 1 ;;
+          esac
