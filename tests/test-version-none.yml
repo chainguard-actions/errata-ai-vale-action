@@ -1,0 +1,43 @@
+name: Test version none uses preinstalled Vale
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: install
+        uses: .
+        with:
+          version: "3.7.1"
+          files: tests/fixtures/docs/clean.md
+          reporter: local
+          filter_mode: nofilter
+          vale_flags: "--config=tests/fixtures/vale/.vale.ini"
+      - name: Put vale on PATH and remove the HOME copy
+        run: |
+          mkdir -p "$HOME/prebin"
+          mv "$HOME/vale" "$HOME/prebin/vale"
+          echo "$HOME/prebin" >> "$GITHUB_PATH"
+      - id: action
+        uses: .
+        with:
+          version: none
+          files: tests/fixtures/docs/clean.md
+          reporter: local
+          filter_mode: nofilter
+          vale_flags: "--config=tests/fixtures/vale/.vale.ini"
+      - name: Assert action used preinstalled vale
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "success" ]; then
+            echo "FAIL: expected success"
+            exit 1
+          fi
+          if [ -e "$HOME/vale" ]; then
+            echo "FAIL: version=none should not download vale into HOME"
+            exit 1
+          fi
+          echo "PASS"

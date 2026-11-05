@@ -1,0 +1,47 @@
+name: Test separator-delimited files list
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          files: "tests/fixtures/docs/clean.md,tests/fixtures/docs/bad.md"
+          separator: ","
+          reporter: local
+          filter_mode: nofilter
+          fail_on_error: "true"
+          vale_flags: "--config=tests/fixtures/vale/.vale.ini"
+      - name: Assert bad.md from the list was linted (failure expected)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "failure" ]; then
+            echo "FAIL: expected failure since bad.md is in the separator list"
+            exit 1
+          fi
+          echo "PASS"
+      - id: clean
+        uses: .
+        with:
+          files: "tests/fixtures/docs/clean.md;tests/fixtures/docs/clean2.md"
+          separator: ";"
+          reporter: local
+          filter_mode: nofilter
+          fail_on_error: "true"
+          vale_flags: "--config=tests/fixtures/vale/.vale.ini"
+      - name: Assert clean list succeeded
+        env:
+          OUTCOME: ${{ steps.clean.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "success" ]; then
+            echo "FAIL: expected success for clean files"
+            exit 1
+          fi
+          echo "PASS"

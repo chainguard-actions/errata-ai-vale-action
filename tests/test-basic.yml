@@ -1,0 +1,36 @@
+name: Test basic usage (latest Vale, clean file)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          files: tests/fixtures/docs/clean.md
+          reporter: local
+          filter_mode: nofilter
+          debug: "true"
+          vale_flags: "--config=tests/fixtures/vale/.vale.ini"
+      - name: Assert action succeeded and installed tools
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" != "success" ]; then
+            echo "FAIL: expected success"
+            exit 1
+          fi
+          ls -la "$HOME" || true
+          if [ ! -x "$HOME/vale" ]; then
+            echo "FAIL: vale binary not found at $HOME/vale"
+            exit 1
+          fi
+          if [ ! -x "$HOME/reviewdog" ]; then
+            echo "FAIL: reviewdog binary not found at $HOME/reviewdog"
+            exit 1
+          fi
+          "$HOME/vale" -v
+          echo "PASS"
