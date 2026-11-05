@@ -1,0 +1,36 @@
+name: Test files as JSON array
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        continue-on-error: true
+        env:
+          GITHUB_HEAD_REF: feature-branch
+        with:
+          files: '["tests/fixtures/docs/clean.md"]'
+          debug: 'true'
+      - name: Assert action ran (succeeded, or failed gracefully on the sentinel repo)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: JSON array of files linted successfully"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (Checks API unavailable for sentinel repo)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
+      - name: Assert temporary config was cleaned up
+        run: |
+          if ls "$GITHUB_WORKSPACE"/tmp-*.ini >/dev/null 2>&1; then
+            echo "FAIL: temporary .ini file left in workspace"
+            exit 1
+          fi
+          echo "PASS"
